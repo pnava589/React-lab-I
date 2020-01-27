@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lab 20a</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    
+    
+    <!--The React JS libraries -->
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <!--Initially, we will use the babel run-time library to convert JSX in the browser -->
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>    
+    
+    
+<script type="text/babel">
+
+/* While helpful, props are read-only meaning that a component can't change
+   them. Most components still need data it can manipulate and change. This
+   is achieved via State ...
+   In this example, our first State variable will be a flag indicating 
+   whether or not we are in edit mode .
+*/
+
+class Company extends React.Component {
+
+  /* class constructor sets up initial state */
+  constructor(props) {
+      super(props);
+      this.state = {editing: false};
+      
+      
+      /* Unfortunately, "this" isn't bound to the correct context for React 
+         when using methods inside classes. The work around is to call bind
+         or use arrow function syntax, which will bind "this" correctly.
+      */      
+       //this.edit = this.edit.bind(this);
+       //this.save = this.save.bind(this);
+  }
+  
+                     
+  /* Here we are defining some helper functions that change state ... 
+     notice the use of setState() ... it's a bit like PHP, which uses 
+     the setcookie() function to change a cookie, but $_COOKIE to retrieve
+     a cookie */
+
+  
+  edit = () => {
+      this.setState({editing: true});
+  }
+  
+  save = () => {
+      this.setState({editing: false});
+  }   
+                            
+  renderNormal()  {
+    return (
+      <article className="box media ">
+        <div className="media-left">
+              <figure className="image is-128x128">
+                <img src={"images/" + this.props.symbol + ".svg"} />
+              </figure>
+        </div>
+        <div className="media-content">
+            <h2>{this.props.children}</h2>
+            <p><strong>Symbol:</strong> {this.props.symbol}</p>
+            <p><strong>Sector:</strong> {this.props.sector}</p>
+            <p><strong>HQ:</strong> {this.props.hq}</p>
+        </div>
+        <div className="media-right">
+          <button className="button is-link" onClick={this.edit}>Edit</button>
+        </div>                     
+      </article>
+    );
+  }
+  
+  renderEdit()  {
+    return (
+      <article className="box media ">
+        <div className="media-left">
+              <figure className="image is-128x128">
+                <img src={"images/" + this.props.symbol + ".svg"} />
+              </figure>
+        </div>
+        <div className="media-content">
+            <h2><input type="text" className="input" 
+                       defaultValue={this.props.children} /></h2>
+            <p><strong>Symbol:</strong> 
+              <input type="text" 
+                className="input" defaultValue={this.props.symbol} /></p>
+            <p><strong>Sector:</strong> 
+              <input type="text" 
+                className="input" defaultValue={this.props.sector} /></p>
+            <p><strong>HQ:</strong> 
+              <input type="text" className="input"
+                defaultValue={this.props.hq} /></p>
+        </div>
+        <div className="media-right">
+          <button className="button is-info" onClick={this.save}>    
+             Save</button>
+        </div>                     
+      </article>
+    );
+  }  
+  
+  
+ /* we will render the component differently depending on our state (whether use has clicked edit button) */
+  render() {
+    if (this.state.editing)
+       return this.renderEdit();
+    else
+        return this.renderNormal();
+  }
+  
+                            
+}
+
+
+class App extends React.Component {
+  render() {
+    return (
+      <main className="container">
+          <Header subtitle="Creating Parent Component" />
+        
+          <section  className="content box">
+            <Company symbol="FB" sector="Internet Software" hq="Menlo Park, California">FaceBook</Company>
+            <Company symbol="GOOG" sector="Information Technology" hq="Mountain View, California">Alphabet Inc Class A</Company>
+            <Company symbol="AAPL" sector="Information Technology" hq="Cupertino, California">Apple</Company>
+            <Company symbol="T" sector="Telecommunications Services" hq="Dallas, Texas">AT&T</Company>            
+        </section>
+      </main>      
+    );
+  }
+}
+
+const Header = props =>
+          <section className="hero is-primary is-small has-background-link">
+            <div className="hero-body">
+              <div className="container">
+                <h1 className="title">React Tutorial</h1>
+                <h2 className="subtitle">
+                  { props.subtitle }
+                </h2>
+              </div>
+            </div>
+          </section>;
+    
+ReactDOM.render(<App />, document.querySelector('#react-container')); 
+  
+</script> 
+        
+        
+  </head>
+  <body>
+    <div id='react-container' ></div>
+  </body>
+</html>

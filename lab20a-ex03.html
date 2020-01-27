@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lab 20a</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>    
+    
+    <!--The React JS libraries -->
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <!--Initially, we will use the babel run-time library to convert JSX in the browser --> 
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>    
+    
+<script type="text/babel">
+
+const Simple = props => <h2 className="is-size-{props.size}">{props.title}</h2>;
+
+/*const Simple = function(props){
+  return <h2 className="is-size-"{props.size}>{props.title}</h2>
+}*/
+
+ReactDOM.render(<Simple title="Using Props" size="3"/>, document.querySelector('#react-container'));        
+  
+</script> 
+            
+  </head>
+
+  <body>
+    <main class="container">
+        <section class="hero is-primary is-small has-background-link">
+          <div class="hero-body">
+            <div class="container">
+              <h1 class="title">
+                React Tutorial
+              </h1>
+              <h2 class="subtitle">
+                Adding multiple instances
+              </h2>
+            </div>
+          </div>
+        </section>
+      
+        <section id='react-container' class="content box "></section>        
+    </main>
+  </body>
+</html>

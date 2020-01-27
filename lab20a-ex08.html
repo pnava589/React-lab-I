@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lab 20a</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    
+    <!--The React JS libraries -->
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <!--Initially, we will use the babel run-time library to convert JSX in the browser -->
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>   
+    
+    
+<script type="text/babel">
+
+/* In this example we are adding in a more sophisticated parent that contains Company data
+
+   Notice how we have moved the content out of the markup and into a data array in the component's state
+   Notice also then that the parent is responsible for populating the state of its children components
+*/
+class Portfolio extends React.Component {
+  
+  /* the parent will contain the data needed for the children */
+  constructor(props) {
+      super(props);
+      this.state = {
+          companies: [
+              {name: "FaceBook", symbol: "FB", sector: "Internet Software", hq: "Menlo Park, California"},
+              {name: "Alphabet Inc Class A", symbol: "GOOG", sector: "Information Technology", hq: "Mountain View, California"},
+              {name: "Apple", symbol: "AAPL", sector: "Information Technology", hq: "Cupertino, California"},
+              {name: "AT&T", symbol: "T", sector: "Telecommunications Services", hq: "Dallas, Texas"}
+          ]
+      };
+  }  
+  
+  /* This function will be responsible for generating a single populated Company element from 
+     the passed company data literal */
+   createCompany(obj, ind) {
+                    return (<Company symbol={obj.symbol} 
+                                    sector={obj.sector} 
+                                    hq={obj.hq} 
+                                    key={ind}
+                                    index={ind}>{obj.name}</Company>)
+  } 
+  
+  /* the render for this component will loop through our data and generate the appropriate Company elements */              
+   render() {
+      return (
+          <div>
+            { this.state.companies.map((c,index) =>
+              <Company symbol={c.symbol} 
+              sector={c.sector}
+              hq={c.hq} key={index}
+              index = {index} > {c.name}</Company>) }
+          </div>
+          );
+
+          // OR return (<div> {this.state.companies.map(this.createCompany)} </div>)
+  } 
+
+ 
+}
+
+class Company extends React.Component {
+
+  /* class constructor sets up initial state */
+  constructor(props) {
+      super(props);
+      this.state = {editing: false};
+  }
+  
+                     
+  /* Here we are defining some helper functions that change state */
+  edit = () => {
+      this.setState({editing: true});
+  }
+  
+  save = () => {
+      this.setState({editing: false});
+  }   
+                            
+  renderNormal()  {
+    return (
+      <article className="box media ">
+        <div className="media-left">
+              <figure className="image is-128x128">
+                <img src={"images/" + this.props.symbol + ".svg"} />
+              </figure>
+        </div>
+        <div className="media-content">
+            <h2>{this.props.children}</h2>
+            <p><strong>Symbol:</strong> {this.props.symbol}</p>
+            <p><strong>Sector:</strong> {this.props.sector}</p>
+            <p><strong>HQ:</strong> {this.props.hq}</p>
+        </div>
+        <div className="media-right">
+          <button className="button is-link" onClick={this.edit}>Edit</button>
+        </div>                     
+      </article>
+    );
+  }
+  
+  renderEdit()  {
+    return (
+      <article className="box media ">
+        <div className="media-left">
+              <figure className="image is-128x128">
+                <img src={"images/" + this.props.symbol + ".svg"} />
+              </figure>
+        </div>
+        <div className="media-content">
+            <h2><input type="text" className="input" 
+                       defaultValue={this.props.children} /></h2>
+            <p><strong>Symbol:</strong> <input type="text" 
+                className="input" defaultValue={this.props.symbol} /></p>
+            <p><strong>Sector:</strong> <input type="text" 
+                className="input" defaultValue={this.props.sector} /></p>
+            <p><strong>HQ:</strong> <input type="text" className="input"
+                defaultValue={this.props.hq} /></p>
+        </div>
+        <div className="media-right">
+          <button className="button is-info" onClick={this.save}>    
+             Save</button>
+        </div>                     
+      </article>
+    );
+  }  
+  
+  
+ /* we will render the component differently depending on our state (whether use has clicked edit button) */
+  render() {
+    if (this.state.editing)
+       return this.renderEdit();
+    else
+        return this.renderNormal();
+  }
+  
+}
+
+
+class App extends React.Component {
+  render() {
+    return (
+      <main className="container">
+          <Header subtitle="Preserving State Changes" />
+          <Portfolio />
+      </main>      
+    );
+  }
+}
+
+const Header = props =>
+          <section className="hero is-primary is-small has-background-link">
+            <div className="hero-body">
+              <div className="container">
+                <h1 className="title">React Tutorial</h1>
+                <h2 className="subtitle">
+                  { props.subtitle }
+                </h2>
+              </div>
+            </div>
+          </section>;
+    
+ReactDOM.render(<App />, document.querySelector('#react-container')); 
+  
+</script> 
+        
+        
+  </head>
+  <body>
+    <div id='react-container' ></div>
+  </body>
+</html>
