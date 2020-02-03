@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lab 20a</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.8.0/css/bulma.min.css">
+    <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+    
+    <!--The React JS libraries -->
+    <script crossorigin src="https://unpkg.com/react@16/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@16/umd/react-dom.development.js"></script>
+    <!--Initially, we will use the babel run-time library to convert JSX in the browser -->
+    <script src="https://unpkg.com/babel-standalone@6/babel.min.js"></script>    
+    
+    
+<script type="text/babel">
+
+
+/* 
+------------------------------------------------------------------------------------------------------------------
+*/
+class Portfolio extends React.Component {
+  
+  /* the parent will contain the data needed for the children */
+  constructor(props) {
+      super(props);
+      this.state = {
+          companies: [
+              {name: "FaceBook", symbol: "FB", sector: "Internet Software", hq: "Menlo Park, California",vote:4},
+              {name: "Alphabet Inc Class A", symbol: "GOOG", sector: "Information Technology", hq: "Mountain View, California",vote:2},
+              {name: "Apple", symbol: "AAPL", sector: "Information Technology", hq: "Cupertino, California",vote:2},
+              {name: "AT&T", symbol: "T", sector: "Telecommunications Services", hq: "Dallas, Texas",vote:1}
+          ]
+      };
+  }  
+  
+  /* notice that the parent is responsible for making changes to the state of its children */
+  saveCompany = (newName, newSymbol, newSector, newHq, index, newVote)  => {
+      let tempArray = this.state.companies;
+
+      // remember that components change their state via setState()
+      tempArray[index] = {name: newName, symbol: newSymbol, sector: newSector, hq: newHq,vote:newVote };
+      this.setState({companies: tempArray});
+      this.sortList();
+  }
+  
+  deleteCompany = (index) => {
+      let tempArray = this.state.companies;
+      tempArray.splice(index,1);
+      this.setState({companies: tempArray});
+  }  
+
+
+  /* This function will be responsible for generating a single populated Company element from 
+     the passed company data literal */
+    createCompany = 
+        (obj, ind) => <Company symbol={obj.symbol} 
+                                sector={obj.sector} 
+                                hq={obj.hq}
+                                vote={obj.vote} 
+                                key={ind}
+                                index={ind}
+                                saveData={this.saveCompany} 
+                                removeData={this.deleteCompany}>
+                        {obj.name}
+                        </Company>;
+
+    addCompany = () => {
+      let tempArray = this.state.companies;
+      tempArray.push({ name: "New Company", symbol: "", sector: "", 
+                       hq: "", vote: ""});
+      this.setState({companies: tempArray});    
+    }   
+
+    sortList = () =>{
+      let tempArray = this.state.companies;
+      tempArray.sort((a,b) => {
+        
+        
+        return b.vote - a.vote;
+        
+      });
+
+      this.setState({companies:tempArray});
+      console.log(this.state.companies);
+    }
+
+    
+
+
+  /* the render for this component will loop through our data and generate the appropriate Company elements */              
+  render() {
+      return (
+          <div>
+            <div className="box">
+                <button className="button is-link" 
+                         onClick={this.addCompany}>
+                 Add Company</button>
+             </div>
+            { this.state.companies.map(this.createCompany) }
+          </div>
+          );
+  }
+    
+}
+ 
+
+
+/* 
+------------------------------------------------------------------------------------------------------------------
+*/
+class Company extends React.Component {
+
+  /* class constructor sets up initial state */
+  constructor(props) {
+      super(props);
+      this.state = {editing: false};
+      this.inputName = React.createRef();
+      this.inputSymbol = React.createRef();
+      this.inputSector = React.createRef();
+      this.inputHQ = React.createRef(); 
+      this.inputVote = React.createRef();     
+      
+  }
+
+  edit = () => {
+      this.setState({editing: true});
+  }
+  
+  /*
+     when we save, we're going to use refs to retrieve the user input and then ask the parent to save the data
+  */  
+  save = () => {
+      /* retrieve the user input */
+      let newName = this.inputName.current.value;
+      let newSymbol = this.inputSymbol.current.value;
+      let newSector = this.inputSector.current.value;
+      let newHq = this.inputHQ.current.value;
+      let newVote = this.inputVote.current.state.count;
+      
+      /* via props we can call the functions in parent that have been passed to the child */
+      this.props.saveData(newName, newSymbol, newSector, newHq, this.props.index, newVote);
+      console.log('save' + "new vote count "+newVote);
+      this.setState({editing: false});
+
+      //newName, newSymbol, newSector, newHq, index, newVote
+  } 
+
+  delete = () => {
+      this.props.removeData(this.props.index);
+      console.log('delete');
+      this.setState({editing: false});
+  }
+                      
+  
+  renderNormal()  {
+    return (
+      <article className="box media ">
+        <div className="media-left">
+              <figure className="image is-128x128">
+                <img src={"images/" + this.props.symbol + ".svg"} />
+              </figure>
+        </div>
+        <div className="media-content">
+            <h2>{this.props.children}</h2>
+            <p><strong>Symbol:</strong> {this.props.symbol}</p>
+            <p><strong>Sector:</strong> {this.props.sector}</p>
+            <p><strong>HQ:</strong> {this.props.hq}</p>
+        </div>
+        <div className="media-right">
+          <button className="button is-link" onClick={this.edit}>Edit</button>
+          <p><strong>{this.props.vote} Votes</strong></p>
+        </div>                     
+      </article>
+    );
+  }  
+
+  
+  renderEdit() {
+    return (
+      <article className="box media ">
+        <div className="media-left">
+              <figure className="image is-128x128">
+                <img src={"images/" + this.props.symbol + ".svg"} />
+              </figure>
+        </div>
+        <div className="media-content">
+            <h2><input type="text" className="input" defaultValue={this.props.children} ref={this.inputName}/></h2>
+            <p><strong>Symbol:</strong> <input type="text" className="input" defaultValue={this.props.symbol} ref={this.inputSymbol} /></p>
+            <p><strong>Sector:</strong> <input type="text" className="input" defaultValue={this.props.sector} ref={this.inputSector} /></p>
+            <p><strong>HQ:</strong> <input type="text" className="input" defaultValue={this.props.hq} ref={this.inputHQ} /></p>
+        </div>
+        <div className="media-right">
+          <button className="button is-info" onClick={this.save}>Save</button>
+          <button className="button is-danger" onClick={this.delete} >Delete</button>
+          <Vote vote={this.props.vote} ref={this.inputVote}/>
+        </div>                     
+      </article>
+    );
+  } 
+  
+ /* we will render the component differently depending on our state (whether use has clicked edit button) */
+  render() {
+    if (this.state.editing)
+       return this.renderEdit();
+    else
+        return this.renderNormal();
+  }
+                            
+}
+
+class Vote extends React.Component
+{
+  constructor(props){
+    super(props);
+    this.state = {count: this.props.vote};
+    
+    console.log("num of votes passed to the Vote constructor: "+this.state.count);
+    
+  }
+
+  add = () => 
+    {
+      this.setState({count: this.state.count + 1});
+    }
+
+    subtract = () =>
+    {
+      this.setState({count: this.state.count - 1});
+    }
+
+  render(){
+    return(
+      <div className="has-text-centered">
+        <p className="is-marginless">
+          <a className="button is-small is-link" onClick={this.add}>
+           <span className="icon">
+            <svg className="svg-inline--fa fa-arrow-up fa-w-14" aria-hidden="true" data-prefix="fas" 
+             data-icon="arrow-up" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" data-fa-i2svg=""><path fill="currentColor" 
+              d="M34.9 289.5l-22.2-22.2c-9.4-9.4-9.4-24.6 0-33.9L207 39c9.4-9.4 24.6-9.4 33.9 0l194.3 194.3c9.4 9.4 9.4 24.6 0 33.9L413 289.4c-9.5 9.5-25 9.3-34.3-.4L264 168.6V456c0 13.3-10.7 24-24 24h-32c-13.3 0-24-10.7-24-24V168.6L69.2 289.1c-9.3 9.8-24.8 10-34.3.4z">
+              </path></svg>
+           </span> 
+          </a>
+        </p>
+        <p className="is-size-5 has-text-grey-light is-marginless">
+          <span defaultValue={this.props.vote}>{this.state.count}</span>
+        </p>
+        <p className="is-marginless">
+          <a className="button is-small is-link " defaultValue = {this.state.count}  onClick={this.subtract}>
+           <span className="icon">
+            <svg className="svg-inline--fa fa-arrow-down fa-w-14" aria-hidden="true" data-prefix="fas" data-icon="arrow-down" role="img" 
+             xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" data-fa-i2svg=""><path fill="currentColor"
+             d="M413.1 222.5l22.2 22.2c9.4 9.4 9.4 24.6 0 33.9L241 473c-9.4 9.4-24.6 9.4-33.9 0L12.7 278.6c-9.4-9.4-9.4-24.6 0-33.9l22.2-22.2c9.5-9.5 25-9.3 34.3.4L184 343.4V56c0-13.3 10.7-24 24-24h32c13.3 0 24 10.7 24 24v287.4l114.8-120.5c9.3-9.8 24.8-10 34.3-.4z"></path></svg>
+           </span> 
+          </a>
+        </p>
+      </div>
+  
+    );  
+   }
+  
+  }
+
+
+/* 
+------------------------------------------------------------------------------------------------------------------
+*/
+class App extends React.Component {
+  render() {
+    return (
+      <main className="container">
+          <Header subtitle="Adding Components to Parent" />
+          <Portfolio />
+      </main>      
+    );
+  }
+}
+
+/* 
+------------------------------------------------------------------------------------------------------------------
+*/
+
+const Header = props =>
+          <section className="hero is-primary is-small has-background-link">
+            <div className="hero-body">
+              <div className="container">
+                <h1 className="title">React Tutorial</h1>
+                <h2 className="subtitle">
+                  { props.subtitle }
+                </h2>
+              </div>
+            </div>
+          </section>;
+    
+/* 
+------------------------------------------------------------------------------------------------------------------
+*/	
+ReactDOM.render(<App />, document.querySelector('#react-container')); 
+  
+</script> 
+        
+        
+  </head>
+  <body>
+    <div id='react-container' ></div>
+  </body>
+</html>
